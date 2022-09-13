@@ -90,8 +90,8 @@ function App() {
 
   useEffect(() => {
     try {
-      const result = math.compile(f).evaluate({x: a});
-      const result2 = math.compile(f).evaluate({x: b});
+      const result = math.compile(f).evaluate({x: Number(a)});
+      const result2 = math.compile(f).evaluate({x: Number(b)});
       if(typeof result !== 'number' || typeof result2 !== 'number') return;
     } catch (error) {
       return;
