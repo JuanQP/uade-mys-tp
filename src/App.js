@@ -155,7 +155,7 @@ function App() {
     <Grid container spacing={3} style={{padding: 10}}>
       <Grid item xs={12}>
         <Typography style={{textAlign: 'center', color: 'white'}} variant='h4'>
-          Aproximación numérica por {metodos[metodo].title}
+          Aproximación de integración numérica por {metodos[metodo].title}
         </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -267,7 +267,7 @@ function App() {
                     startIcon={<RefreshIcon />}
                     onClick={handleRefreshRandomPoints}
                   >
-                    Generar puntos
+                    Regenerar puntos
                   </Button>
                 </div>
                 <div>
