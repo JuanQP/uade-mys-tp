@@ -6,7 +6,7 @@ import { Grid, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { MathJax } from 'better-react-mathjax';
 import { useState } from 'react';
-import { HorizontalGridLines, LineSeries, MarkSeries, VerticalGridLines, XAxis, XYPlot, YAxis } from 'react-vis';
+import { HorizontalGridLines, LineSeries, MarkSeries, VerticalBarSeries, VerticalGridLines, VerticalRectSeries, XAxis, XYPlot, YAxis } from 'react-vis';
 import * as math from 'mathjs';
 import { useEffect } from 'react';
 import RefreshIcon from '@material-ui/icons/Refresh';
@@ -15,8 +15,8 @@ const INITIAL_F = 'x';
 const INITIAL_A = '0';
 const INITIAL_B = '2';
 const INITIAL_N = '20';
-const FAIL_COLOR = '#ff0000';
-const SUCCESS_COLOR = '#00ff00';
+const FAIL_COLOR = '#FF6962';
+const SUCCESS_COLOR = '#77DD76';
 const X_VALUES_COUNT = 50;
 
 const metodos = [
@@ -86,6 +86,7 @@ function App() {
     INITIAL_A,
     getMaxY(initialData),
   ));
+  const [rectangles, setRectangles] = useState(rectanglesApprox(INITIAL_F, INITIAL_A, INITIAL_B, INITIAL_N));
 
   useEffect(() => {
     // algo
@@ -101,10 +102,12 @@ function App() {
 
       // Random points
       if(metodo === 0) {
+        setRectangles([]);
         randomizePoints(newData);
       }
       else {
         setRandomPoints([]);
+        setRectangles(rectanglesApprox(f, a, b, n));
       }
     } catch (error) {
 
@@ -151,6 +154,24 @@ function App() {
     return math.round((successPointsCount/randomPoints.length) * (b-a) * maxY, 2);
   }
 
+  function rectanglesApprox(f, a, b, n) {
+    const width = (b-a)/n;
+    const expression = math.compile(f);
+    return math.range(a, b, width, false).map(val => {
+      const yValue = expression.evaluate({x: val + width/2});
+      return {
+        x0: val,
+        x: val + width,
+        y: yValue,
+        color: yValue < 0 ? FAIL_COLOR : SUCCESS_COLOR,
+      };
+    }).toArray();
+  }
+
+  function rectanglesValue(rectangles) {
+    return rectangles.reduce((acc, val) => acc + (val.x - val.x0) * val.y, 0);
+  }
+
   return (
     <Grid container spacing={3} style={{padding: 10}}>
       <Grid item xs={12}>
@@ -162,31 +183,47 @@ function App() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Card>
-              <CardContent>
-                <Typography>Gráfico</Typography>
+              <CardContent style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
                 <XYPlot height={600} width={900}>
                   <VerticalGridLines />
                   <HorizontalGridLines />
                   <XAxis />
                   <YAxis />
                   <LineSeries data={data}/>
-                  <MarkSeries
-                    colorType='literal'
-                    stroke={'black'}
-                    data={randomPoints}
-                  />
+                  {metodo === 0 ? (
+                    <MarkSeries
+                      colorType='literal'
+                      stroke={'black'}
+                      data={randomPoints}
+                      animation={"noWobble"}
+                    />
+                  ) : (
+                    <VerticalRectSeries
+                      colorType='literal'
+                      opacity={0.5}
+                      stroke={'black'}
+                      data={rectangles}
+                      animation={"noWobble"}
+                    />
+                  )}
                 </XYPlot>
                 <Typography style={{textAlign: 'center'}}>
-                  {`${successPoints} aciertos y ${failedPoints} fallos`}
+                  {metodo === 0 && `${successPoints} aciertos y ${failedPoints} fallos`}
                 </Typography>
                 <MathJax>
-                  {`$$
+                  {metodo === 0 ? `$$
                     \\int_{${a}}^{${b}} ${texExpression}dx
                     \\approx
                     \\frac{${successPoints}}{${randomPoints.length}}
                     \\times (${b} ${a < 0 ? `+ ${math.abs(a)}` : `- ${a}`})
                     \\times ${math.round(maxY, 2)}
-                    \\approx ${montecarloValue}
+                    \\approx ${math.round(montecarloValue, 4)}
+                  $$` :
+                  `$$
+                    \\int_{${a}}^{${b}} ${texExpression}dx
+                    \\approx
+                    \\sum_{i=1}^{${n}} f(c_i)\\Delta x
+                    \\approx ${math.round(rectanglesValue(rectangles), 4)}
                   $$`}
                 </MathJax>
               </CardContent>
@@ -235,6 +272,7 @@ function App() {
                     variant="outlined"
                     placeholder='0'
                     fullWidth
+                    type="number"
                     onChange={handleAChange}
                   />
                 </div>
@@ -245,6 +283,7 @@ function App() {
                     variant="outlined"
                     placeholder='2'
                     fullWidth
+                    type="number"
                     onChange={handleBChange}
                   />
                 </div>
@@ -255,20 +294,23 @@ function App() {
                     variant="outlined"
                     placeholder='10'
                     fullWidth
+                    type="number"
                     onChange={handleNChange}
                   />
                 </div>
                 <div>
-                  <Button
-                    size='large'
-                    variant="outlined"
-                    color="primary"
-                    fullWidth
-                    startIcon={<RefreshIcon />}
-                    onClick={handleRefreshRandomPoints}
-                  >
-                    Regenerar puntos
-                  </Button>
+                  {metodo === 0 && (
+                    <Button
+                      size='large'
+                      variant="outlined"
+                      color="primary"
+                      fullWidth
+                      startIcon={<RefreshIcon />}
+                      onClick={handleRefreshRandomPoints}
+                    >
+                      Regenerar puntos
+                    </Button>
+                  )}
                 </div>
                 <div>
                   <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Función a evaluar</Typography>
