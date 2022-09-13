@@ -89,7 +89,14 @@ function App() {
   const [rectangles, setRectangles] = useState(rectanglesApprox(INITIAL_F, INITIAL_A, INITIAL_B, INITIAL_N));
 
   useEffect(() => {
-    // algo
+    try {
+      const result = math.compile(f).evaluate({x: a});
+      const result2 = math.compile(f).evaluate({x: b});
+      if(typeof result !== 'number' || typeof result2 !== 'number') return;
+    } catch (error) {
+      return;
+    }
+
     if(a === '' || !math.hasNumericValue(a) || a >= b) return;
     if(b === '' || !math.hasNumericValue(b)) return;
     if(n === '' || !math.hasNumericValue(n) || n < 1) return;
