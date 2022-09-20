@@ -217,7 +217,7 @@ function App() {
                 <Typography style={{textAlign: 'center'}}>
                   {metodo === 0 && `${successPoints} aciertos y ${failedPoints} fallos`}
                 </Typography>
-                <MathJax>
+                <MathJax dynamic>
                   {metodo === 0 ? `$$
                     \\int_{${a}}^{${b}} ${texExpression}dx
                     \\approx
@@ -321,7 +321,7 @@ function App() {
                 </div>
                 <div>
                   <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Función a evaluar</Typography>
-                  <MathJax>{`$$\\int_{${a}}^{${b}} ${texExpression}dx, \\text{ }N=${String(n)}$$`}</MathJax>
+                  <MathJax dynamic>{`$$\\int_{${a}}^{${b}} ${texExpression}dx, \\text{ }N=${String(n)}$$`}</MathJax>
                 </div>
               </CardContent>
             </Card>
