@@ -176,7 +176,7 @@ function App() {
   }
 
   function rectanglesValue(rectangles) {
-    return rectangles.reduce((acc, val) => acc + (val.x - val.x0) * val.y, 0);
+    return rectangles.reduce((area, rectangle) => area + (rectangle.x - rectangle.x0) * rectangle.y, 0);
   }
 
   return (
