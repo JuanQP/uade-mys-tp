@@ -10,6 +10,7 @@ import { HorizontalGridLines, LineSeries, MarkSeries, VerticalBarSeries, Vertica
 import * as math from 'mathjs';
 import { useEffect } from 'react';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import CheckIcon from '@material-ui/icons/Check';
 
 const INITIAL_F = 'x';
 const INITIAL_A = '0';
@@ -108,12 +109,11 @@ function App() {
       setData(newData);
 
       // Random points
+      setRandomPoints([]);
       if(metodo === 0) {
         setRectangles([]);
-        randomizePoints(newData);
       }
       else {
-        setRandomPoints([]);
         setRectangles(rectanglesApprox(f, a, b, n));
       }
     } catch (error) {
@@ -182,7 +182,7 @@ function App() {
   return (
     <Grid container spacing={3} style={{padding: 10}}>
       <Grid item xs={12}>
-        <Typography style={{textAlign: 'center', color: 'white'}} variant='h4'>
+        <Typography style={{textAlign: 'center', color: 'white', textShadow: '2px 2px #000000'}} variant='h4'>
           Aproximación de integración numérica por {metodos[metodo].title}
         </Typography>
       </Grid>
@@ -219,6 +219,7 @@ function App() {
                 </Typography>
                 <MathJax dynamic>
                   {metodo === 0 ? `$$
+                    \\text{Área} =
                     \\int_{${a}}^{${b}} ${texExpression}dx
                     \\approx
                     \\frac{${successPoints}}{${randomPoints.length}}
@@ -227,6 +228,7 @@ function App() {
                     \\approx ${math.round(montecarloValue, 4)}
                   $$` :
                   `$$
+                    \\text{Área} =
                     \\int_{${a}}^{${b}} ${texExpression}dx
                     \\approx
                     \\sum_{i=1}^{${n}} f(c_i)\\Delta x
@@ -247,6 +249,7 @@ function App() {
                       variant={metodo === 0 ? 'contained' : 'outlined'}
                       color="primary"
                       fullWidth
+                      startIcon={metodo === 0 ? <CheckIcon /> : undefined}
                       onClick={() => handleMetodoChange(0)}
                     >
                       Montecarlo
@@ -256,6 +259,7 @@ function App() {
                       variant={metodo === 1 ? 'contained' : 'outlined'}
                       color="primary"
                       fullWidth
+                      startIcon={metodo === 1 ? <CheckIcon /> : undefined}
                       onClick={() => handleMetodoChange(1)}
                     >
                       Rectángulos
@@ -312,10 +316,10 @@ function App() {
                       variant="outlined"
                       color="primary"
                       fullWidth
-                      startIcon={<RefreshIcon />}
+                      startIcon={randomPoints.length === 0 ? undefined : <RefreshIcon />}
                       onClick={handleRefreshRandomPoints}
                     >
-                      Regenerar puntos
+                      {randomPoints.length === 0 ? 'Generar puntos' : 'Regenerar puntos'}
                     </Button>
                   )}
                 </div>
