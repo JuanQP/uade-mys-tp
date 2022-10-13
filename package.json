@@ -1,48 +1,29 @@
 {
-  "homepage":"https://juanquinteros.github.io/uade-mys-tp",
+  "homepage":"https://JuanQP.github.io/uade-mys-tp",
   "name": "uade-mys-tp",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
-    "@testing-library/jest-dom": "^5.16.5",
     "better-react-mathjax": "^2.0.2",
     "mathjs": "^11.2.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-scripts": "5.0.1",
-    "react-vis": "^1.11.7",
-    "web-vitals": "^2.1.4"
+    "react-vis": "^1.11.7"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "BASE_URL=/uade-mys-tp/ npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
-    "gh-pages": "^4.0.0"
+    "@types/react": "^16.14.0",
+    "@types/react-dom": "^16.9.16",
+    "@vitejs/plugin-react": "^2.1.0",
+    "gh-pages": "^4.0.0",
+    "vite": "^3.1.0"
   }
 }
