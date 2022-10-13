@@ -6,9 +6,9 @@ This repo is an app to approximate area calculations using [Monte Carlo method](
 
 ![uade-mys-preview](https://user-images.githubusercontent.com/11776905/195628350-7fb8c340-a1ca-499c-b758-8e76e686c588.gif)
 
-The syntax to write functions in this app is similar to MathJax, details here 👇
+The [syntax to write functions](https://mathjs.org/docs/expressions/syntax.html) in this app is similar to MathJax
 
-https://mathjs.org/docs/expressions/syntax.html
+**Live demo here:** https://juanqp.github.io/uade-mys-tp
 
 ### Some example functions
 
