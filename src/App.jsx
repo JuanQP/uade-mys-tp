@@ -121,7 +121,7 @@ export function App() {
                     startIcon={metodo === Methods.MONTECARLO.key ? <CheckIcon /> : undefined}
                     onClick={() => handleMetodoChange(Methods.MONTECARLO.key)}
                   >
-                    Montecarlo
+                    Monte Carlo
                   </Button>
                 </Grid>
                 <Grid item xs={12}>

@@ -5,7 +5,7 @@ import { Typography } from "@material-ui/core";
 import { MathJax } from "better-react-mathjax";
 
 export const Methods = {
-  MONTECARLO: {key: 'MONTECARLO', nombre: 'Montecarlo', title: 'método de Montecarlo'},
+  MONTECARLO: {key: 'MONTECARLO', nombre: 'Monte Carlo', title: 'método de Monte Carlo'},
   RECTANGLES: {key: 'RECTANGLES', nombre: 'Rectángulos', title: 'método de los Rectángulos'},
 };
 
