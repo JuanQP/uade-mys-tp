@@ -35,49 +35,49 @@ export function ResultsCard({
   return (
     <>
       <FlexibleXYPlot height={600}>
-      <VerticalGridLines />
-      <HorizontalGridLines />
-      <XAxis />
-      <YAxis />
-      <LineSeries data={data}/>
-      {method === Methods.MONTECARLO.key ? (
-        <MarkSeries
-          colorType='literal'
-          stroke={'black'}
-          data={randomPoints}
-          animation={"noWobble"}
-        />
-      ) : (
-        <VerticalRectSeries
-          colorType='literal'
-          opacity={0.5}
-          stroke={'black'}
-          data={rectangles}
-          animation={"noWobble"}
-        />
-      )}
-    </FlexibleXYPlot>
-    <Typography style={{textAlign: 'center'}}>
-      {method === Methods.MONTECARLO.key && `${failedPoints} fallos y ${successPoints} aciertos`}
-    </Typography>
-    <MathJax dynamic>
-      {method === Methods.MONTECARLO.key ? `$$
-        \\text{Área} =
-        \\int_{${a}}^{${b}} ${texExpression}dx
-        \\approx
-        \\frac{${successPoints}}{${randomPoints.length}}
-        \\times (${b} ${a < 0 ? `+ ${math.abs(a)}` : `- ${a}`})
-        \\times ${math.round(maxY, 2)}
-        \\approx ${math.round(montecarloValue, 4)}
-      $$` :
-      `$$
-        \\text{Área} =
-        \\int_{${a}}^{${b}} ${texExpression}dx
-        \\approx
-        \\sum_{i=1}^{${n}} f(c_i)\\Delta x
-        \\approx ${math.round(rectanglesValue(rectangles), 4)}
-      $$`}
-    </MathJax>
+        <VerticalGridLines />
+        <HorizontalGridLines />
+        <XAxis />
+        <YAxis />
+        <LineSeries data={data}/>
+        {method === Methods.MONTECARLO.key ? (
+          <MarkSeries
+            colorType='literal'
+            stroke={'black'}
+            data={randomPoints}
+            animation={"noWobble"}
+          />
+        ) : (
+          <VerticalRectSeries
+            colorType='literal'
+            opacity={0.5}
+            stroke={'black'}
+            data={rectangles}
+            animation={"noWobble"}
+          />
+        )}
+      </FlexibleXYPlot>
+      <Typography style={{textAlign: 'center'}}>
+        {method === Methods.MONTECARLO.key && `${failedPoints} fallos y ${successPoints} aciertos`}
+      </Typography>
+      <MathJax dynamic>
+        {method === Methods.MONTECARLO.key ? `$$
+          \\text{Área} =
+          \\int_{${a}}^{${b}} ${texExpression}dx
+          \\approx
+          \\frac{${successPoints}}{${randomPoints.length}}
+          \\times (${b} ${a < 0 ? `+ ${math.abs(a)}` : `- ${a}`})
+          \\times ${math.round(maxY, 2)}
+          \\approx ${math.round(montecarloValue, 4)}
+        $$` :
+        `$$
+          \\text{Área} =
+          \\int_{${a}}^{${b}} ${texExpression}dx
+          \\approx
+          \\sum_{i=1}^{${n}} f(c_i)\\Delta x
+          \\approx ${math.round(rectanglesValue(rectangles), 4)}
+        $$`}
+      </MathJax>
     </>
   )
 }
