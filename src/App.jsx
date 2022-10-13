@@ -6,91 +6,46 @@ import { Container, Grid, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { MathJax } from 'better-react-mathjax';
 import { useState } from 'react';
-import { HorizontalGridLines, LineSeries, makeWidthFlexible, MarkSeries, VerticalGridLines, VerticalRectSeries, XAxis, XYPlot, YAxis } from 'react-vis';
 import * as math from 'mathjs';
 import { useEffect } from 'react';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import CheckIcon from '@material-ui/icons/Check';
-import { setFieldValue } from './utils';
-
-const FlexibleXYPlot = makeWidthFlexible(XYPlot);
+import { generateChartData, generateRandomPointsData, setFieldValue } from './utils';
+import { Methods, ResultsCard } from './ResultsCard';
 
 const INITIAL_F = 'x';
 const INITIAL_A = '0';
 const INITIAL_B = '2';
 const INITIAL_N = '20';
-const FAIL_COLOR = '#FF6962';
-const SUCCESS_COLOR = '#77DD76';
-const X_VALUES_COUNT = 50;
+export const FAIL_COLOR = '#FF6962';
+export const SUCCESS_COLOR = '#77DD76';
 
-const metodos = [
-  {nombre: 'Montecarlo', title: 'método de Montecarlo'},
-  {nombre: 'Rectángulos', title: 'método de los Rectángulos'},
-];
+const {
+  tex: initialTex,
+  data: initialData,
+} = generateChartData(INITIAL_F, INITIAL_A, INITIAL_B);
 
-const {tex: initialTex, data: initialData} = chartData(INITIAL_F, INITIAL_A, INITIAL_B);
-const initialRandomPointsData = randomPointsData(INITIAL_F, INITIAL_A, INITIAL_B, INITIAL_N, initialData);
+const initialRandomPointsData = generateRandomPointsData(
+  INITIAL_F,
+  INITIAL_A,
+  INITIAL_B,
+  INITIAL_N,
+  initialData
+);
 
-const countOccurrences = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
-
-function getMaxY (data) {
-  return math.max(data.map(p => p.y));
-}
-
-function chartData(f, a, b) {
-  // Chart
-  const newExpression = math.parse(f);
-  const compiledExpression = newExpression.compile();
-  const newX = math.range(a, b, (b-a)/X_VALUES_COUNT, true).toArray();
-  const newData = newX.map(x => ({x: x, y: compiledExpression.evaluate({x})}));
-
-  return {
-    tex: newExpression.toTex(),
-    data: newData,
-  }
-}
-
-function randomPointsData(f, a, b, n, data) {
-  // Random points
-  const compiledF = math.compile(f);
-  const randomX = math.random([1, n], a, b)[0];
-  const randomMaxValue = getMaxY(data);
-  const randomPointsData = randomX.map(x => {
-    const yValue = compiledF.evaluate({x});
-    const randomY = math.random(0, randomMaxValue);
-    const isFailure = randomY > yValue;
-    return {
-      x,
-      y: randomY,
-      color: isFailure ? FAIL_COLOR : SUCCESS_COLOR,
-      isFailure,
-    };
-  });
-
-  return randomPointsData;
-}
-
-function App() {
-
-  const [metodo, setMetodo] = useState(0);
+export function App() {
+  // Right card form data
+  const [metodo, setMetodo] = useState(Methods.MONTECARLO.key);
   const [f, setF] = useState(INITIAL_F);
+  const [validF, setValidF] = useState(INITIAL_F);
   const [a, setA] = useState(INITIAL_A);
   const [b, setB] = useState(INITIAL_B);
   const [n, setN] = useState(INITIAL_N);
+  // Right card integral
   const [texExpression, setTexExpression] = useState(initialTex);
+  // Left card calculated data
   const [data, setData] = useState(initialData);
   const [randomPoints, setRandomPoints] = useState(initialRandomPointsData);
-  const [successPoints, setSuccessPoints] = useState(countOccurrences(initialRandomPointsData.map(a => a.isFailure), false));
-  const [failedPoints, setFailedPoints] = useState(countOccurrences(initialRandomPointsData.map(a => a.isFailure), true));
-  const [maxY, setMaxY] = useState(getMaxY(initialData));
-  const [montecarloValue, setMontecarloValue] = useState(montecarloApprox(
-    countOccurrences(initialRandomPointsData.map(a => a.isFailure), false),
-    initialRandomPointsData,
-    INITIAL_B,
-    INITIAL_A,
-    getMaxY(initialData),
-  ));
-  const [rectangles, setRectangles] = useState(rectanglesApprox(INITIAL_F, INITIAL_A, INITIAL_B, INITIAL_N));
 
   useEffect(() => {
     try {
@@ -106,19 +61,12 @@ function App() {
     if(n === '' || !math.hasNumericValue(n) || n < 1) return;
     if(f === '') return;
     try {
-      // Chart
-      const {tex: newTex, data: newData} = chartData(f, a, b);
+      // Regenerate new chart data, and latex expression
+      const {tex: newTex, data: newData} = generateChartData(f, a, b);
+      setValidF(f);
       setTexExpression(newTex);
       setData(newData);
-
-      // Random points
       setRandomPoints([]);
-      if(metodo === 0) {
-        setRectangles([]);
-      }
-      else {
-        setRectangles(rectanglesApprox(f, a, b, n));
-      }
     } catch (error) {
 
     }
@@ -128,42 +76,9 @@ function App() {
     setMetodo(metodo);
   }
 
-  function randomizePoints(data) {
-    const newRandomPointsData = randomPointsData(f, a, b, n, data);
-    const successPointsCount = countOccurrences(newRandomPointsData.map(a => a.isFailure), false);
-    const failedPointsCount = countOccurrences(newRandomPointsData.map(a => a.isFailure), true);
-    const newMaxY = getMaxY(data);
-    setRandomPoints(newRandomPointsData);
-    setSuccessPoints(successPointsCount);
-    setFailedPoints(failedPointsCount);
-    setMaxY(newMaxY);
-    setMontecarloValue(montecarloApprox(successPointsCount, newRandomPointsData, b, a, newMaxY));
-  }
-
   function handleRefreshRandomPoints() {
-    randomizePoints(data);
-  }
-
-  function montecarloApprox(successPointsCount, randomPoints, b, a, maxY) {
-    return math.round((successPointsCount/randomPoints.length) * (b-a) * maxY, 2);
-  }
-
-  function rectanglesApprox(f, a, b, n) {
-    const width = (b-a)/n;
-    const expression = math.compile(f);
-    return math.range(a, b, width, false).map(val => {
-      const yValue = expression.evaluate({x: val + width/2});
-      return {
-        x0: val,
-        x: val + width,
-        y: yValue,
-        color: yValue < 0 ? FAIL_COLOR : SUCCESS_COLOR,
-      };
-    }).toArray();
-  }
-
-  function rectanglesValue(rectangles) {
-    return rectangles.reduce((area, rectangle) => area + (rectangle.x - rectangle.x0) * rectangle.y, 0);
+    const newRandomPointsData = generateRandomPointsData(f, a, b, n, data);
+    setRandomPoints(newRandomPointsData);
   }
 
   return (
@@ -171,148 +86,119 @@ function App() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Typography style={{textAlign: 'center', color: 'white', textShadow: '2px 2px #000000'}} variant='h4'>
-            Aproximación de integración numérica por {metodos[metodo].title}
+            Aproximación de integración numérica por {Methods[metodo].title}
           </Typography>
         </Grid>
         <Grid item xs={12} md={8}>
           <Card>
             <CardContent style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-              <FlexibleXYPlot height={600}>
-                <VerticalGridLines />
-                <HorizontalGridLines />
-                <XAxis />
-                <YAxis />
-                <LineSeries data={data}/>
-                {metodo === 0 ? (
-                  <MarkSeries
-                    colorType='literal'
-                    stroke={'black'}
-                    data={randomPoints}
-                    animation={"noWobble"}
-                  />
-                ) : (
-                  <VerticalRectSeries
-                    colorType='literal'
-                    opacity={0.5}
-                    stroke={'black'}
-                    data={rectangles}
-                    animation={"noWobble"}
-                  />
-                )}
-              </FlexibleXYPlot>
-              <Typography style={{textAlign: 'center'}}>
-                {metodo === 0 && `${successPoints} aciertos y ${failedPoints} fallos`}
-              </Typography>
-              <MathJax dynamic>
-                {metodo === 0 ? `$$
-                  \\text{Área} =
-                  \\int_{${a}}^{${b}} ${texExpression}dx
-                  \\approx
-                  \\frac{${successPoints}}{${randomPoints.length}}
-                  \\times (${b} ${a < 0 ? `+ ${math.abs(a)}` : `- ${a}`})
-                  \\times ${math.round(maxY, 2)}
-                  \\approx ${math.round(montecarloValue, 4)}
-                $$` :
-                `$$
-                  \\text{Área} =
-                  \\int_{${a}}^{${b}} ${texExpression}dx
-                  \\approx
-                  \\sum_{i=1}^{${n}} f(c_i)\\Delta x
-                  \\approx ${math.round(rectanglesValue(rectangles), 4)}
-                $$`}
-              </MathJax>
+              <ResultsCard
+                method={metodo}
+                f={validF}
+                a={a}
+                b={b}
+                n={n}
+                data={data}
+                randomPoints={randomPoints}
+                texExpression={texExpression}
+              />
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
-              <div>
-                <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Método</Typography>
-                <div>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Método</Typography>
+                </Grid>
+                <Grid item xs={12}>
                   <Button
                     size='large'
-                    variant={metodo === 0 ? 'contained' : 'outlined'}
+                    variant={metodo === Methods.MONTECARLO.key ? 'contained' : 'outlined'}
                     color="primary"
                     fullWidth
-                    startIcon={metodo === 0 ? <CheckIcon /> : undefined}
-                    onClick={() => handleMetodoChange(0)}
+                    startIcon={metodo === Methods.MONTECARLO.key ? <CheckIcon /> : undefined}
+                    onClick={() => handleMetodoChange(Methods.MONTECARLO.key)}
                   >
                     Montecarlo
                   </Button>
+                </Grid>
+                <Grid item xs={12}>
                   <Button
                     size='large'
-                    variant={metodo === 1 ? 'contained' : 'outlined'}
+                    variant={metodo === Methods.RECTANGLES.key ? 'contained' : 'outlined'}
                     color="primary"
                     fullWidth
-                    startIcon={metodo === 1 ? <CheckIcon /> : undefined}
-                    onClick={() => handleMetodoChange(1)}
+                    startIcon={metodo === Methods.RECTANGLES.key ? <CheckIcon /> : undefined}
+                    onClick={() => handleMetodoChange(Methods.RECTANGLES.key)}
                   >
                     Rectángulos
                   </Button>
-                </div>
-              </div>
-              <div>
-                <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Función f(x)</Typography>
-                <TextField
-                  value={f}
-                  variant="outlined"
-                  placeholder='x^2'
-                  fullWidth
-                  onChange={setFieldValue(setF)}
-                />
-              </div>
-              <div>
-                <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Valor de a</Typography>
-                <TextField
-                  value={a}
-                  variant="outlined"
-                  placeholder='0'
-                  fullWidth
-                  type="number"
-                  onChange={setFieldValue(setA)}
-                />
-              </div>
-              <div>
-                <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Valor de b</Typography>
-                <TextField
-                  value={b}
-                  variant="outlined"
-                  placeholder='2'
-                  fullWidth
-                  type="number"
-                  onChange={setFieldValue(setB)}
-                />
-              </div>
-              <div>
-                <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Valor de N</Typography>
-                <TextField
-                  value={n}
-                  variant="outlined"
-                  placeholder='10'
-                  fullWidth
-                  type="number"
-                  onChange={setFieldValue(setN)}
-                />
-              </div>
-              <div>
-                {metodo === 0 && (
-                  <Button
-                    size='large'
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Función"
+                    value={f}
                     variant="outlined"
-                    color="primary"
+                    placeholder='x^2'
                     fullWidth
-                    startIcon={randomPoints.length === 0 ? undefined : <RefreshIcon />}
-                    onClick={handleRefreshRandomPoints}
-                  >
-                    {randomPoints.length === 0 ? 'Generar puntos' : 'Regenerar puntos'}
-                  </Button>
-                )}
-              </div>
-              <div>
-                <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Función a evaluar</Typography>
-                <MathJax dynamic>{`$$\\int_{${a}}^{${b}} ${texExpression}dx, \\text{ }N=${String(n)}$$`}</MathJax>
-              </div>
+                    onChange={setFieldValue(setF)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Valor de 'a'"
+                    value={a}
+                    variant="outlined"
+                    placeholder='0'
+                    fullWidth
+                    type="number"
+                    onChange={setFieldValue(setA)}
+                  />
+
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Valor de 'b'"
+                    value={b}
+                    variant="outlined"
+                    placeholder='2'
+                    fullWidth
+                    type="number"
+                    onChange={setFieldValue(setB)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Valor de 'n'"
+                    value={n}
+                    variant="outlined"
+                    placeholder='10'
+                    fullWidth
+                    type="number"
+                    onChange={setFieldValue(setN)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  {metodo === Methods.MONTECARLO.key && (
+                    <Button
+                      size='large'
+                      variant="outlined"
+                      color="primary"
+                      fullWidth
+                      startIcon={randomPoints.length === 0 ? undefined : <RefreshIcon />}
+                      onClick={handleRefreshRandomPoints}
+                    >
+                      {randomPoints.length === 0 ? 'Generar puntos' : 'Regenerar puntos'}
+                    </Button>
+                  )}
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography style={{fontWeight: 'bold', fontSize: '1.5em'}}>Función a evaluar</Typography>
+                  <MathJax dynamic>{`$$\\int_{${a}}^{${b}} ${texExpression}dx, \\text{ }N=${String(n)}$$`}</MathJax>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </Grid>
