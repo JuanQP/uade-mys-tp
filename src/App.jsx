@@ -11,6 +11,7 @@ import * as math from 'mathjs';
 import { useEffect } from 'react';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import CheckIcon from '@material-ui/icons/Check';
+import { setFieldValue } from './utils';
 
 const FlexibleXYPlot = makeWidthFlexible(XYPlot);
 
@@ -125,22 +126,6 @@ function App() {
 
   function handleMetodoChange(metodo) {
     setMetodo(metodo);
-  }
-
-  function handleFChange(newValue) {
-    setF(newValue.target.value);
-  }
-
-  function handleAChange(newValue) {
-    setA(newValue.target.value);
-  }
-
-  function handleBChange(newValue) {
-    setB(newValue.target.value);
-  }
-
-  function handleNChange(newValue) {
-    setN(newValue.target.value);
   }
 
   function randomizePoints(data) {
@@ -274,7 +259,7 @@ function App() {
                   variant="outlined"
                   placeholder='x^2'
                   fullWidth
-                  onChange={handleFChange}
+                  onChange={setFieldValue(setF)}
                 />
               </div>
               <div>
@@ -285,7 +270,7 @@ function App() {
                   placeholder='0'
                   fullWidth
                   type="number"
-                  onChange={handleAChange}
+                  onChange={setFieldValue(setA)}
                 />
               </div>
               <div>
@@ -296,7 +281,7 @@ function App() {
                   placeholder='2'
                   fullWidth
                   type="number"
-                  onChange={handleBChange}
+                  onChange={setFieldValue(setB)}
                 />
               </div>
               <div>
@@ -307,7 +292,7 @@ function App() {
                   placeholder='10'
                   fullWidth
                   type="number"
-                  onChange={handleNChange}
+                  onChange={setFieldValue(setN)}
                 />
               </div>
               <div>
