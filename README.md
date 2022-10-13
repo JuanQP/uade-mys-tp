@@ -1,35 +1,19 @@
 # UADE - Modelado y Simulación - 2022
 
-SPA para realizar aproximaciones de áreas utilizando los métodos de Montecarlo y método de los Rectángulos.
+Project for university asignature *Modeling and simulation*.
 
-Cursada de Modelado y Simulación, 2do Cuatrimestre
+This repo is an app to approximate area calculations using [Monte Carlo method](https://mathonweb.com/entrtain/monte/t_monte.htm) and [Rectangles method](https://ximera.osu.edu/mooculus/calculus1/approximatingTheAreaUnderACurve/digInApproximatingAreaWithRectangles).
 
-La sintaxis para escribir funciones es similar a MathJax, pero el detalle está acá:
+![uade-mys-preview](https://user-images.githubusercontent.com/11776905/195628350-7fb8c340-a1ca-499c-b758-8e76e686c588.gif)
+
+The syntax to write functions in this app is similar to MathJax, details here 👇
 
 https://mathjs.org/docs/expressions/syntax.html
 
-# Aproximación por Montecarlo
+### Some example functions
 
-La parte importante del cálculo de la aproximación de Montecarlo está en la siguiente parte:
+* `sqrt(x)`
+* `x`
+* `x^2`
+* `x^3`
 
-```js
-function montecarloApprox(successPointsCount, randomPoints, b, a, maxY) {
-  return math.round((successPointsCount/randomPoints.length) * (b-a) * maxY, 2);
-}
-```
-
-En particular, lo que nos interesa es:
-
-```js
-(successPointsCount / randomPoints.length) * (b-a) * maxY
-```
-
-# Aproximación por Rectángulos
-
-Para este caso, la parte importante:
-
-```js
-function rectanglesValue(rectangles) {
-  return rectangles.reduce((area, rectangle) => area + (rectangle.x - rectangle.x0) * rectangle.y, 0);
-}
-```
