@@ -1,17 +1,16 @@
-import './App.css';
+import { Container, Grid, TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import { Container, Grid, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import { MathJax } from 'better-react-mathjax';
-import { useState } from 'react';
-import * as math from 'mathjs';
-import { useEffect } from 'react';
-import RefreshIcon from '@material-ui/icons/Refresh';
 import CheckIcon from '@material-ui/icons/Check';
-import { generateChartData, generateRandomPointsData, setFieldValue } from './utils';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import { MathJax } from 'better-react-mathjax';
+import * as math from 'mathjs';
+import { useEffect, useState } from 'react';
+import './App.css';
 import { Methods, ResultsCard } from './ResultsCard';
+import { generateChartData, generateRandomPointsData, setFieldValue } from './utils';
 
 const INITIAL_F = 'x';
 const INITIAL_A = '0';
@@ -23,24 +22,24 @@ export const SUCCESS_COLOR = '#77DD76';
 const {
   tex: initialTex,
   data: initialData,
-} = generateChartData(INITIAL_F, INITIAL_A, INITIAL_B);
+} = generateChartData(INITIAL_F, +INITIAL_A, +INITIAL_B);
 
 const initialRandomPointsData = generateRandomPointsData(
   INITIAL_F,
-  INITIAL_A,
-  INITIAL_B,
-  INITIAL_N,
+  +INITIAL_A,
+  +INITIAL_B,
+  +INITIAL_N,
   initialData
 );
 
 export function App() {
   // Right card form data
-  const [metodo, setMetodo] = useState(Methods.MONTECARLO.key);
+  const [metodo, setMetodo] = useState<MethodsType>("MONTECARLO");
   const [f, setF] = useState(INITIAL_F);
   const [validF, setValidF] = useState(INITIAL_F);
-  const [a, setA] = useState(INITIAL_A);
-  const [b, setB] = useState(INITIAL_B);
-  const [n, setN] = useState(INITIAL_N);
+  const [a, setA] = useState<string>(INITIAL_A);
+  const [b, setB] = useState<string>(INITIAL_B);
+  const [n, setN] = useState<string>(INITIAL_N);
   // Right card integral
   const [texExpression, setTexExpression] = useState(initialTex);
   // Left card calculated data
@@ -58,11 +57,11 @@ export function App() {
 
     if(a === '' || !math.hasNumericValue(a) || a >= b) return;
     if(b === '' || !math.hasNumericValue(b)) return;
-    if(n === '' || !math.hasNumericValue(n) || n < 1) return;
+    if(n === '' || !math.hasNumericValue(n) || (+n) < 1) return;
     if(f === '') return;
     try {
       // Regenerate new chart data, and latex expression
-      const {tex: newTex, data: newData} = generateChartData(f, a, b);
+      const {tex: newTex, data: newData} = generateChartData(f, Number(a), Number(b));
       setValidF(f);
       setTexExpression(newTex);
       setData(newData);
@@ -72,12 +71,12 @@ export function App() {
     }
   }, [a, b, n, f, metodo]);
 
-  function handleMetodoChange(metodo) {
+  function handleMetodoChange(metodo: keyof typeof Methods) {
     setMetodo(metodo);
   }
 
   function handleRefreshRandomPoints() {
-    const newRandomPointsData = generateRandomPointsData(f, a, b, n, data);
+    const newRandomPointsData = generateRandomPointsData(f, Number(a), Number(b), Number(n), data);
     setRandomPoints(newRandomPointsData);
   }
 
@@ -95,9 +94,9 @@ export function App() {
               <ResultsCard
                 method={metodo}
                 f={validF}
-                a={a}
-                b={b}
-                n={n}
+                a={Number(a)}
+                b={Number(b)}
+                n={Number(n)}
                 data={data}
                 randomPoints={randomPoints}
                 texExpression={texExpression}
@@ -115,11 +114,11 @@ export function App() {
                 <Grid item xs={12}>
                   <Button
                     size='large'
-                    variant={metodo === Methods.MONTECARLO.key ? 'contained' : 'outlined'}
+                    variant={metodo === "MONTECARLO" ? 'contained' : 'outlined'}
                     color="primary"
                     fullWidth
-                    startIcon={metodo === Methods.MONTECARLO.key ? <CheckIcon /> : undefined}
-                    onClick={() => handleMetodoChange(Methods.MONTECARLO.key)}
+                    startIcon={metodo === "MONTECARLO" ? <CheckIcon /> : undefined}
+                    onClick={() => handleMetodoChange("MONTECARLO")}
                   >
                     Monte Carlo
                   </Button>
@@ -127,11 +126,11 @@ export function App() {
                 <Grid item xs={12}>
                   <Button
                     size='large'
-                    variant={metodo === Methods.RECTANGLES.key ? 'contained' : 'outlined'}
+                    variant={metodo === "RECTANGLES" ? 'contained' : 'outlined'}
                     color="primary"
                     fullWidth
-                    startIcon={metodo === Methods.RECTANGLES.key ? <CheckIcon /> : undefined}
-                    onClick={() => handleMetodoChange(Methods.RECTANGLES.key)}
+                    startIcon={metodo === "RECTANGLES" ? <CheckIcon /> : undefined}
+                    onClick={() => handleMetodoChange("RECTANGLES")}
                   >
                     Rectángulos
                   </Button>
@@ -181,7 +180,7 @@ export function App() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  {metodo === Methods.MONTECARLO.key && (
+                  {metodo === "MONTECARLO" && (
                     <Button
                       size='large'
                       variant="outlined"

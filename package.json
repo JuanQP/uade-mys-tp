@@ -1,5 +1,5 @@
 {
-  "homepage":"https://JuanQP.github.io/uade-mys-tp",
+  "homepage": "https://JuanQP.github.io/uade-mys-tp",
   "name": "uade-mys-tp",
   "version": "0.1.0",
   "dependencies": {
@@ -14,16 +14,19 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "predeploy": "BASE_URL=/uade-mys-tp/ npm run build",
     "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
-    "@types/react": "^16.14.0",
-    "@types/react-dom": "^16.9.16",
+    "@types/node": "^18.11.18",
+    "@types/react": "^16.14.34",
+    "@types/react-dom": "^16.9.17",
+    "@types/react-vis": "^1.11.11",
     "@vitejs/plugin-react": "^2.1.0",
     "gh-pages": "^4.0.0",
+    "typescript": "^4.9.4",
     "vite": "^3.1.0"
   }
 }
